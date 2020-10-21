@@ -1,0 +1,67 @@
+version: '3.3'
+services:
+  mongodb:
+    image: mongo:3.2
+    volumes:
+      - db:/data/db
+    networks:
+      back_net:
+        aliases:
+          - mongodb
+
+  rabbitmq:
+    image: rabbitmq:3
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      back_net:
+        aliases:
+          - rabbitmq
+          
+  crawler:
+    image: search_engine_crawler:0.2
+    environment:
+      - MONGO=mongodb
+      - MONGO_PORT=27017
+      - RMQ_HOST=rabbitmq
+      - RMQ_QUEUE=crawler_queue
+      - RMQ_USERNAME=user
+      - RMQ_PASSWORD=password
+      - CHECK_INTERVAL=100
+    depends_on: 
+      - mongodb
+      - rabbitmq
+    networks:
+      front_net:
+        aliases:
+          - crawler
+      back_net:
+        aliases:
+          - crawler
+
+  crawler-ui:
+    image: search_engine_ui:0.2
+    environment:
+      - MONGO=mongodb
+      - MONGO_PORT=27017
+    depends_on: 
+      - mongodb
+      - rabbitmq
+      - crawler
+    ports:
+      - "8000:8000/tcp"
+    networks:
+      back_net:
+        aliases:
+          - ui
+      front_net:
+        aliases:
+          - ui
+
+volumes:
+  db:
+
+networks:
+  back_net:
+  front_net:
