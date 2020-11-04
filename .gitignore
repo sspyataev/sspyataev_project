@@ -3,5 +3,6 @@
 *.tfstate.lock.info
 *.tfstate.*.backup
 *.tfstate.backup
-#*.tfvars
+*.tfvars
 .terraform/
+deploy.sh

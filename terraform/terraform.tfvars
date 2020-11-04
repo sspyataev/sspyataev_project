@@ -1,2 +1,2 @@
-project_id = ${{ secrets.PROJECT_ID }}
-region = ${{ secrets.REGION }}
+project_id = "otus-test-291011"
+region = "europe-north1"
