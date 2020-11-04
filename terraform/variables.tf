@@ -1,6 +1,6 @@
 variable "project_id" {
   description = "project id"
-  default = "project"
+  default = "my-gke-cluster"
 }
 
 variable "region" {
