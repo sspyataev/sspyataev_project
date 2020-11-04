@@ -19,11 +19,37 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           
-      - name: build and push
-        id: docker_build
+      - name: build and push crawler
+        id: docker_build_crawler
         uses: docker/build-push-action@v2
         with:
           context: docker/search_engine_crawler
           file: docker/search_engine_crawler/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_crawler
+
+      - name: build and push ui
+        id: docker_build_ui
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/search_engine_ui
+          file: docker/search_engine_ui/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_ui
+
+  create_cluster:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: check out the repo
+        uses: actions/checkout@v2
+
+      - name: install terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: create cluster
+        run: |
+          terraform init
+           terraform apply --auto-approve=true
