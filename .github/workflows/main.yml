@@ -46,10 +46,13 @@ jobs:
       - name: check out the repo
         uses: actions/checkout@v2
 
-      - name: install terraform
+      - name: setup terraform
         uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: create cluster
-        run: |
-          terraform init
-          terraform apply --auto-approve=true
+      - name: terraform init
+        run: terraform init
+
+      - name: terraform apply
+        run: terraform apply -auto-approve=true
