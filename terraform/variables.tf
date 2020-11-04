@@ -1,3 +1,8 @@
+variable "project_id" {
+  description = "project id"
+  default = "project"
+}
+
 variable "region" {
   description = "region"
   default = "europe-north1"
