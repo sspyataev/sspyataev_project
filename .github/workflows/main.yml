@@ -50,7 +50,6 @@ jobs:
         uses: hashicorp/setup-terraform@v1
 
       - name: create cluster
-        env: -var-file ${{ secrets.TFVARS }}
         run: |
           terraform init
           terraform apply --auto-approve=true
