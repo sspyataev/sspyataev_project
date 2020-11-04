@@ -13,7 +13,7 @@ terraform {
 # GKE cluster
 resource "google_container_cluster" "primary" {
   name     = "project-gke"
-  location = "europe-north1"
+  location = var.region
   cluster = google_container_cluster.primary.name
 
   remove_default_node_pool = true
@@ -35,7 +35,7 @@ resource "google_container_cluster" "primary" {
 # Separately Managed Node Pool
 resource "google_container_node_pool" "primary_nodes" {
   name       = "${google_container_cluster.primary.name}-node-pool"
-  location   = "europe-north1"
+  location   = var.region
   cluster    = google_container_cluster.primary.name
   node_count = var.gke_num_nodes
 
