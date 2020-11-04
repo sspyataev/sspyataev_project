@@ -1,6 +1,24 @@
 name: my awesome workflow
 on: [push]
 jobs:
+  create_cluster:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: check out the repo
+        uses: actions/checkout@v2
+
+      - name: install terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: create cluster
+        env: -var-file ${{ TFVARS }}
+        run: |
+          terraform init
+          terraform apply --auto-approve=true
+
   # build-and-push-images:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -37,20 +55,3 @@ jobs:
   #         push: true
   #         tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_ui
 
-  create_cluster:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: terraform
-    steps:
-      - name: check out the repo
-        uses: actions/checkout@v2
-
-      - name: install terraform
-        uses: hashicorp/setup-terraform@v1
-
-      - name: create cluster
-        env: -var-file ${{ TFVARS }}
-        run: |
-          terraform init
-          terraform apply --auto-approve=true
