@@ -12,7 +12,7 @@ terraform {
 
 # GKE cluster
 resource "google_container_cluster" "primary" {
-  name     = "${var.project_id}"
+  name     = var.project_id
   location = var.region
 
   remove_default_node_pool = true
