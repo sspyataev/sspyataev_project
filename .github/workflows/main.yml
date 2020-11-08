@@ -4,10 +4,14 @@ on: [push]
 env:
   GKE_CLUSTER: ${{ secrets.GKE_PROJECT }}-gke
   GKE_REGION: "europe-north1"
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
 jobs:
   build-and-push-images:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docker
     steps:
       - name: check out the repo
         uses: actions/checkout@v2
@@ -23,22 +27,38 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: crawler unit test
+        run: |-
+          cd search_engine_crawler
+          pip3 install -r requirements.txt -r requirements-test.txt
+          python3 -m unittest discover -s tests/
+          coverage run -m unittest discover -s tests/
+          coverage report --include crawler/crawler.py
           
       - name: build and push crawler
         id: docker_build_crawler
         uses: docker/build-push-action@v2
         with:
-          context: docker/search_engine_crawler
-          file: docker/search_engine_crawler/Dockerfile
+          context: search_engine_crawler
+          file: search_engine_crawler/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_crawler
+
+      - name: ui unit test
+        run: |-
+          cd search_engine_ui
+          pip3 install -r requirements.txt -r requirements-test.txt
+          python3 -m unittest discover -s tests/
+          coverage run -m unittest discover -s tests/
+          coverage report --include ui/ui.py
 
       - name: build and push ui
         id: docker_build_ui
         uses: docker/build-push-action@v2
         with:
-          context: docker/search_engine_ui
-          file: docker/search_engine_ui/Dockerfile
+          context: search_engine_ui
+          file: search_engine_ui/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_ui
 
