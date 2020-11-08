@@ -1525,6 +1525,25 @@ serverFiles:
             regex: Pending|Succeeded|Failed
             action: drop
 
+      - job_name: 'kubernetes-service-endpoints-crawler'
+        kubernetes_sd_configs:
+          - role: pod
+
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_label_app]
+            action: keep
+            regex: crawler
+          - action: labelmap
+            regex: __meta_kubernetes_service_label_(.+)
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_service_name]
+            action: replace
+            target_label: kubernetes_name
+
       # Example Scrape config for pods which should be scraped slower. An useful example
       # would be stackriver-exporter which querys an API on every scrape of the pod
       #
