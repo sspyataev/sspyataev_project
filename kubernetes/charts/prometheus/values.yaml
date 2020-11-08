@@ -1532,7 +1532,7 @@ serverFiles:
         relabel_configs:
           - source_labels: [__meta_kubernetes_service_label_app]
             action: keep
-            regex: crawler
+            regex: search_engine
           - action: labelmap
             regex: __meta_kubernetes_service_label_(.+)
           - action: labelmap
