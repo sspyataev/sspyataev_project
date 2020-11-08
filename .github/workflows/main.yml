@@ -108,7 +108,7 @@ jobs:
       - name: install prometheus
         run: |-
           cd charts/prometheus
-          helm upgrade --install prometheus . -f values.yaml -n monitoring
+          helm upgrade --install prometheus . -f values.yaml -n prod
 
       - name: install grafana
         run: |-
