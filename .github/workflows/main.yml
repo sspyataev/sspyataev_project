@@ -2,68 +2,73 @@ name: my awesome workflow
 on: [push]
 
 env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: ${{ secrets.GKE_PROJECT }}-gke
   GKE_REGION: "europe-north1"
+  GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
 
 jobs:
-  # build-and-push-images:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: check out the repo
-  #       uses: actions/checkout@v2
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out the repo
+        uses: actions/checkout@v2
         
-  #     - name: set up qemu
-  #       uses: docker/setup-qemu-action@v1
+      - name: set up qemu
+        uses: docker/setup-qemu-action@v1
         
-  #     - name: set up docker buildx
-  #       uses: docker/setup-buildx-action@v1
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v1
         
-  #     - name: login to dockerhub
-  #       uses: docker/login-action@v1
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: login to dockerhub
+        uses: docker/login-action@v1
+        with:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_TOKEN
           
-  #     - name: build and push crawler
-  #       id: docker_build_crawler
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         context: docker/search_engine_crawler
-  #         file: docker/search_engine_crawler/Dockerfile
-  #         push: true
-  #         tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_crawler
+      - name: build and push crawler
+        id: docker_build_crawler
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/search_engine_crawler
+          file: docker/search_engine_crawler/Dockerfile
+          push: true
+          tags: $DOCKERHUB_USERNAME/search_engine_crawler
 
-  #     - name: build and push ui
-  #       id: docker_build_ui
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         context: docker/search_engine_ui
-  #         file: docker/search_engine_ui/Dockerfile
-  #         push: true
-  #         tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_ui
+      - name: build and push ui
+        id: docker_build_ui
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/search_engine_ui
+          file: docker/search_engine_ui/Dockerfile
+          push: true
+          tags: $DOCKERHUB_USERNAME/search_engine_ui
 
-  # create_cluster:
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: terraform
-  #   steps:
-  #     - name: check out the repo
-  #       uses: actions/checkout@v2
+  create-cluster:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: check out the repo
+        uses: actions/checkout@v2
 
-  #     - name: setup terraform
-  #       uses: hashicorp/setup-terraform@v1
-  #       with:
-  #         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: $TF_API_TOKEN
 
-  #     - name: terraform init
-  #       run: terraform init
+      - name: terraform init
+        run: terraform init
 
-  #     - name: terraform apply
-  #       run: terraform apply -auto-approve=true
+      - name: terraform apply
+        run: terraform apply -auto-approve=true
 
-  deploy_application:
+  deploy-application:
+    needs: [build-and-push-images, create-cluster]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -75,8 +80,8 @@ jobs:
       - name: setup gcloud
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@0.1.3
         with:
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
-          project_id: ${{ secrets.GKE_PROJECT }}
+          service_account_key: $GKE_SA_KEY
+          project_id: $PROJECT_ID
 
       - name: get creds
         run: |-
