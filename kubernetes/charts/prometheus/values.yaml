@@ -1168,13 +1168,13 @@ pushgateway:
 ##
 alertmanagerFiles:
   alertmanager.yml:
-    global: {}
-      slack_api_url: 'https://hooks.slack.com/services/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'
+    global:
+      slack_api_url: ''
 
     receivers:
       - name: default-receiver
         slack_configs:
-         - channel: '#sergey_pyataev'
+         - channel: ''
            send_resolved: true
 
     route:

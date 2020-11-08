@@ -134,7 +134,9 @@ jobs:
       - name: install prometheus
         run: |-
           cd charts/prometheus
-          helm upgrade --install prometheus . -f values.yaml -n prod
+          helm upgrade --install prometheus . -f values.yaml -n monitoring \
+                       --set-string alertmanagerFiles."alertmanager\.yml".global.slack_api_url=${SLACK_API_URL} \
+                       --set-string alertmanagerFiles."alertmanager\.yml".receivers[0].slack_configs[0].channel=${SLACK_CHANNEL}
 
       - name: install grafana
         run: |-
