@@ -1,5 +1,11 @@
 name: my awesome workflow
 on: [push]
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: ${{ secrets.GKE_PROJECT }}-gke
+  GKE_REGION: "europe-north1"
+
 jobs:
   # build-and-push-images:
   #   runs-on: ubuntu-latest
@@ -59,6 +65,9 @@ jobs:
 
   deploy_application:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kubernetes
     steps:
       - name: check out the repo
         uses: actions/checkout@v2
@@ -68,3 +77,40 @@ jobs:
         with:
           service_account_key: ${{ secrets.GKE_SA_KEY }}
           project_id: ${{ secrets.GKE_PROJECT }}
+
+      - name: get creds
+        run: |-
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION" --project "$PROJECT_ID"
+
+      - name: create namespaces
+        run: |-
+          kubectl apply -f namespace-prod.yml \
+                        -f namespace-monitoring.yml
+
+      - name: deploy infra
+        run: |-
+          kubectl apply -f deployment-rabbit.yml \
+                        -f service-rabbit.yml \
+                        -f deployment-mongo.yml \
+                        -f service-mongo.yml
+
+      - name: deploy app
+        run: |-
+          kubectl apply -f deployment-crawler.yml \
+                        -f service-crawler.yml \
+                        -f deployment-ui.yml \
+                        -f service-ui.yml
+
+      - name: setup helm
+        uses: azure/setup-helm@v1
+        id: install
+
+      - name: install prometheus
+        run: |-
+          cd charts/prometheus
+          helm upgrade --install prometheus . -f values.yaml -n monitoring
+
+      - name: install grafana
+        run: |-
+          cd charts/grafana
+          helm upgrade --install grafana . -f values.yaml -n monitoring
