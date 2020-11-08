@@ -26,8 +26,8 @@ jobs:
       - name: login to dockerhub
         uses: docker/login-action@v1
         with:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_TOKEN
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
           
       - name: build and push crawler
         id: docker_build_crawler
