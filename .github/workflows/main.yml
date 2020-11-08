@@ -37,34 +37,34 @@ jobs:
   #         push: true
   #         tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_ui
 
-  create_cluster:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: terraform
-    steps:
-      - name: check out the repo
-        uses: actions/checkout@v2
-
-      - name: setup terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-      - name: terraform init
-        run: terraform init
-
-      - name: terraform apply
-        run: terraform apply -auto-approve=true
-
-  # deploy_application:
+  # create_cluster:
   #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: terraform
   #   steps:
   #     - name: check out the repo
   #       uses: actions/checkout@v2
-      
-  #     - name: setup gcloud
-  #       uses: GoogleCloudPlatform/github-actions/setup-gcloud@0.1.3
+
+  #     - name: setup terraform
+  #       uses: hashicorp/setup-terraform@v1
   #       with:
-  #         service_account_key: ${{ secrets.GKE_SA_KEY }}
-  #         project_id: ${{ secrets.GKE_PROJECT }}
+  #         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+  #     - name: terraform init
+  #       run: terraform init
+
+  #     - name: terraform apply
+  #       run: terraform apply -auto-approve=true
+
+  deploy_application:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out the repo
+        uses: actions/checkout@v2
+      
+      - name: setup gcloud
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@0.1.3
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
