@@ -43,8 +43,8 @@ jobs:
         id: docker_build_crawler
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: Dockerfile
+          context: docker/search_engine_crawler
+          file: docker/search_engine_crawler/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_crawler
 
@@ -63,8 +63,8 @@ jobs:
         id: docker_build_ui
         uses: docker/build-push-action@v2
         with:
-          context: search_engine_ui
-          file: search_engine_ui/Dockerfile
+          context: docker/search_engine_ui
+          file: docker/search_engine_ui/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/search_engine_ui
 
