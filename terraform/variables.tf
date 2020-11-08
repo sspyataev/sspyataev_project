@@ -1,6 +1,5 @@
 variable "project_id" {
   description = "project id"
-  default = "otus-test-291011"
 }
 
 variable "region" {
