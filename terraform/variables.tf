@@ -1,6 +1,6 @@
 variable "project_id" {
   description = "project id"
-  default = "my-gke-cluster"
+  default = "otus-test-291011"
 }
 
 variable "region" {
